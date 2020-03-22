@@ -71,18 +71,18 @@ when defined(deebusJson):
 proc getBus*(path: DBusValue): Bus =
   ## open a new bus connection at the given address
   var
-    error: ptr DBusError
+    err: ptr DBusError
   let
     path = path.stringValue
-    conn = dbus_connection_open(path.cstring, error)
+    conn = dbus_connection_open(path.cstring, err)
   if conn == nil:
     error "unable to connect via " & path
-  elif error != nil:
-    error error.repr
+  elif err != nil:
+    error "$#: $#" % [ $err.name, $err.message ]
   else:
     result = Bus(conn: conn)
 
-converter toBool(b: dbus_bool_t): bool =
+converter toBool*(b: dbus_bool_t): bool =
   result = cast[uint32](b) == 1
 
 template queryBusImpl(meth: Method; args: typed): untyped =
